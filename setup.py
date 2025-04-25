@@ -133,7 +133,6 @@ def get_extensions():
 
 def get_requirements():
     return [
-        "torch",
         "black",
         "flake8",
         "h5py",
@@ -142,14 +141,6 @@ def get_requirements():
         "matplotlib",
         "numpy",
         "Pillow",
-        "py3ode",
-        "pygame",
-        "pytest>=4.6",
-        "pytest-cov>=2.7",
-        "pyyaml",
-        "sphinx==2.2.0",  # pinned to resolve issue with docutils 0.16b0.dev
-        "torchdiffeq",
-        "tqdm",
     ]
 
 
@@ -178,7 +169,6 @@ if __name__ == "__main__":
         url=URL,
         long_description=LONG_DESCRIPTION,
         licence=LICENSE,
-        python_requires=">3.6",
         # Package info
         packages=find_packages(exclude=("docs", "test", "examples")),
         install_requires=get_requirements(),

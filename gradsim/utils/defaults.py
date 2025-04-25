@@ -28,7 +28,7 @@ Defaults.FRICTION_COEFFICIENT = 0.9
 # Coefficient of restitution.
 Defaults.RESTITUTION = 0.5
 # Contact detection threshold.
-Defaults.EPSILON = 0.1
+Defaults.EPSILON = 0.001
 # Penetration tolerance parameter.
 Defaults.TOL = 1e-6
 # Threshold relative velocity below which collision will not be corrected

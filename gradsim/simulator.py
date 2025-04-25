@@ -1,5 +1,5 @@
 from .contacts import detect_ground_plane_contacts
-from .engines import EulerIntegrator
+from .engines import EulerIntegrator, EulerIntegratorWithContacts
 from .utils.defaults import Defaults
 
 
@@ -10,7 +10,7 @@ class Simulator(object):
         self,
         bodies,
         dtime=Defaults.DT,
-        engine=EulerIntegrator(),
+        engine=EulerIntegratorWithContacts(),
         eps=Defaults.EPSILON,
         tol=Defaults.TOL,
         vrel_thresh=Defaults.VREL_THRESH,

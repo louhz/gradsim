@@ -12,10 +12,11 @@ from tqdm import tqdm, trange
 
 from gradsim.bodies import RigidBody
 from gradsim.forces import ConstantForce
-from gradsim.renderutils import SoftRenderer, TriangleMesh
+from gradsim.renderutils import SoftRenderer
 from gradsim.simulator import Simulator
 from gradsim.utils import meshutils
-
+import trimesh
+import open3d as o3d
 
 class Model(torch.nn.Module):
     """Wrap masses into a torch.nn.Module, for ease of optimization. """
@@ -53,12 +54,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--seed", type=int, default=123, help="Random seed (for repeatability)"
     )
-    parser.add_argument(
-        "--infile",
-        type=str,
-        default=Path("sampledata/cube.obj"),
-        help="Path to input mesh (.obj) file.",
-    )
+
     parser.add_argument(
         "--simsteps",
         type=int,
@@ -104,26 +100,37 @@ if __name__ == "__main__":
     device = "cuda:0"
 
     # Load a body (from a triangle mesh obj file).
-    mesh = TriangleMesh.from_obj(args.infile)
-    vertices = meshutils.normalize_vertices(mesh.vertices.unsqueeze(0)).to(device)
-    faces = mesh.faces.to(device).unsqueeze(0)
+    def normalize_vertices(vertices):
+        # Example: center and scale the vertices
+        min_vals = vertices.min(dim=1, keepdim=True)[0]
+        max_vals = vertices.max(dim=1, keepdim=True)[0]
+        return (vertices - (min_vals + max_vals) / 2) / (max_vals - min_vals).max()
+
+    # Load the mesh from OBJ using trimesh
+    mesh_path = "/home/haozhe/Dropbox/physics/_data/allegro/wonik_allegro/assets/bluelego.stl"
+    mesh = trimesh.load(mesh_path)
+
+    # Convert vertices/faces into PyTorch tensors
+    vertices = torch.from_numpy(mesh.vertices).float().unsqueeze(0).to(device)
+    faces = torch.from_numpy(mesh.faces).long().unsqueeze(0).to(device)
+
+    # Optionally normalize the vertices if needed (similar to meshutils.normalize_vertices)
+    # vertices = normalize_vertices(vertices)
+
+    # Create a dummy texture as in your example, shape = [1, num_faces, 2, 1, 3]
     textures = torch.cat(
         (
-            torch.ones(1, faces.shape[1], 2, 1, dtype=torch.float32, device=device),
-            torch.ones(1, faces.shape[1], 2, 1, dtype=torch.float32, device=device),
-            torch.zeros(1, faces.shape[1], 2, 1, dtype=torch.float32, device=device),
+            torch.ones(1, faces.shape[1], 2, 1, dtype=torch.float32, device=device),  # R=1
+            torch.ones(1, faces.shape[1], 2, 1, dtype=torch.float32, device=device),  # G=1
+            torch.zeros(1, faces.shape[1], 2, 1, dtype=torch.float32, device=device), # B=0
         ),
         dim=-1,
     )
-    # masses_gt = torch.nn.Parameter(
-    #     1 * torch.ones(vertices.shape[1], dtype=vertices.dtype, device=device),
-    #     requires_grad=False,
-    # )
     masses_gt = torch.nn.Parameter(
         torch.arange(vertices.shape[1], dtype=vertices.dtype, device=device),
         requires_grad=False,
     )
-    body_gt = RigidBody(vertices[0], masses=masses_gt)
+    body_gt = RigidBody(vertices[0], masses=masses_gt,position=torch.tensor([0.095, 0.05, 0.1], device=device))
 
     # Create a force that applies gravity (g = 10 metres / second^2).
     gravity = ConstantForce(
@@ -136,7 +143,7 @@ if __name__ == "__main__":
     body_gt.add_external_force(gravity, application_points=[0, 1])
 
     # Initialize the simulator with the body at the origin.
-    sim_gt = Simulator([body_gt])
+    sim_gt = Simulator([body_gt], contacts=True)
 
     # Initialize the renderer.
     renderer = SoftRenderer(camera_mode="look_at", device=device)
@@ -212,7 +219,9 @@ if __name__ == "__main__":
     # Save viz, if specified.
     if args.log:
         logdir = Path(args.logdir) / args.expid
-        logdir.mkdir(exist_ok=True)
+        import os
+        os.makedirs(logdir, exist_ok=True)
+        
 
         # GT sim, Est sim
         initwriter = imageio.get_writer(logdir / "init.gif", mode="I")

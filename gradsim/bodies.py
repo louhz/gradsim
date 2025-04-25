@@ -246,6 +246,43 @@ class RigidBody(object):
                 # Torque is 0 this case; axis of force passes through center of mass.
 
         return force_per_point.sum(0), torque_per_point.sum(0)
+    
+    def apply_external_forces_list(self, time):
+        """
+        Apply external forces (and compute torques) for forces
+        scheduled at the given 'time'.
+        """
+        force_per_point = torch.zeros_like(self.vertices)
+        torque_per_point = torch.zeros_like(self.vertices)
+
+        # 1) If there's an entry for this 'time', apply all its forces.
+        if time in self.force_schedule:
+            # self.force_schedule[time] should be a list of (force_obj, application_points)
+            for force_obj, application_points in self.force_schedule[time]:
+                # Compute the force vector from the object
+                force_vector = force_obj.apply(time)  # e.g. returns a torch.Tensor [Fx, Fy, Fz]
+
+                if application_points is not None:
+                    # Force is only applied at the specified vertices
+                    mask = torch.zeros_like(self.vertices)  # same shape: (N,3)
+                    inds = (
+                        torch.tensor(application_points, dtype=torch.long, device=self.device)
+                        .view(-1, 1)
+                        .repeat(1, 3)
+                    )
+                    mask = mask.scatter_(0, inds, 1.0)
+                    # Accumulate
+                    force_per_point += mask * force_vector.view(1, 3)
+                else:
+                    # Force is applied to all vertices
+                    force_per_point += force_vector.view(1, 3)
+
+        # 2) Compute net torque from per-vertex forces
+        #    torque = sum_i( (vertex_i - COM) x force_i )
+        torque_per_point += torch.cross(self.vertices - self.position.view(1, 3), force_per_point)
+
+        # 3) Return the sum of all forces and torques
+        return force_per_point.sum(0), torque_per_point.sum(0)
 
     def compute_linear_momentum(self, time):
         r"""Compute the linear momentum of the rigid-body at the current timesetp.
