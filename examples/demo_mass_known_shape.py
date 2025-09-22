@@ -107,7 +107,7 @@ if __name__ == "__main__":
         return (vertices - (min_vals + max_vals) / 2) / (max_vals - min_vals).max()
 
     # Load the mesh from OBJ using trimesh
-    mesh_path = "/home/haozhe/Dropbox/physics/_data/allegro/wonik_allegro/assets/bluelego.stl"
+    mesh_path = "./Dropbox/physics/_data/allegro/wonik_allegro/assets/bluelego.stl"
     mesh = trimesh.load(mesh_path)
 
     # Convert vertices/faces into PyTorch tensors

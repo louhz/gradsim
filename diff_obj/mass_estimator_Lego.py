@@ -694,7 +694,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--logdir",
         type=str,
-        default="/home/haozhe/Desktop/robotic_toolset/gradsim/cache/mass_known_shape_lego",
+        default="./Desktop/robotic_toolset/gradsim/cache/mass_known_shape_lego",
         help="Directory to store logs in.",
     )
     parser.add_argument(
@@ -742,9 +742,9 @@ if __name__ == "__main__":
         return (vertices - (min_vals + max_vals) / 2) / (max_vals - min_vals).max()
 
     # Load the mesh from STL/OBJ using trimesh
-    mesh_path = "/home/haozhe/bluelego.ply"
+    mesh_path = "./bluelego.ply"
     
-    # out_path = "/home/haozhe/Dropbox/physics/_data/allegro/wonik_allegro/assets/U_simplified.obj"
+    # out_path = "./Dropbox/physics/_data/allegro/wonik_allegro/assets/U_simplified.obj"
     
     mesh = o3d.io.read_triangle_mesh(mesh_path)
    
@@ -822,9 +822,9 @@ if __name__ == "__main__":
     #GT sim is from foundationpose
 
 
-    xml_path = '/home/haozhe/Dropbox/physics/_data/allegro/wonik_allegro/scene_bluelego.xml'
-    control_signal_path = '/home/haozhe/Dropbox/physics/bluelego/allegro_joint_states_lego_physics/4/joint_states_log.csv'
-    gt_path = '/home/haozhe/Dropbox/physics/bluelego/pose/4/target_lego_20250320_1532.txt'
+    xml_path = './Dropbox/physics/_data/allegro/wonik_allegro/scene_bluelego.xml'
+    control_signal_path = './Dropbox/physics/bluelego/allegro_joint_states_lego_physics/4/joint_states_log.csv'
+    gt_path = './Dropbox/physics/bluelego/pose/4/target_lego_20250320_1532.txt'
 
     # Load Allegro glove joint states
     control_signal = load_position_data(control_signal_path)

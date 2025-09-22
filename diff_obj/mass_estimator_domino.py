@@ -694,7 +694,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--logdir",
         type=str,
-        default="/home/haozhe/Desktop/robotic_toolset/gradsim/cache/mass_known_shape_domino_60epoch",
+        default="./Desktop/robotic_toolset/gradsim/cache/mass_known_shape_domino_60epoch",
         help="Directory to store logs in.",
     )
     parser.add_argument(
@@ -742,9 +742,9 @@ if __name__ == "__main__":
         return (vertices - (min_vals + max_vals) / 2) / (max_vals - min_vals).max()
 
     # Load the mesh from STL/OBJ using trimesh
-    mesh_path = "/home/haozhe/Dropbox/physics/_data/allegro/wonik_allegro/assets/domino.stl"
+    mesh_path = "./Dropbox/physics/_data/allegro/wonik_allegro/assets/domino.stl"
     
-    # out_path = "/home/haozhe/Dropbox/physics/_data/allegro/wonik_allegro/assets/U_simplified.obj"
+    # out_path = "./Dropbox/physics/_data/allegro/wonik_allegro/assets/U_simplified.obj"
     
     mesh = o3d.io.read_triangle_mesh(mesh_path)
    
@@ -823,9 +823,9 @@ if __name__ == "__main__":
     #GT sim is from foundationpose
 
 
-    xml_path = '/home/haozhe/Dropbox/physics/_data/allegro/wonik_allegro/scene_domino.xml'
-    control_signal_path = '/home/haozhe/Dropbox/physics/Domino_sequence/3/joint_states_log.csv'
-    gt_path = '/home/haozhe/Dropbox/physics/Domino_sequence/path_full_up_3/target_domino_20250423_1710.txt'
+    xml_path = './Dropbox/physics/_data/allegro/wonik_allegro/scene_domino.xml'
+    control_signal_path = './Dropbox/physics/Domino_sequence/3/joint_states_log.csv'
+    gt_path = './Dropbox/physics/Domino_sequence/path_full_up_3/target_domino_20250423_1710.txt'
 
     # Load Allegro glove joint states
     control_signal = load_position_data(control_signal_path)
